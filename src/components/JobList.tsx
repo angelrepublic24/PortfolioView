@@ -21,7 +21,7 @@ export const JobList = ({projects, limit}: JobProps) => {
               <li className="mb-12" key={project._id}>
                 <div className="group relative grid gap-4 pb-1 transition-all sm:grid-cols-8 sm:gap-8 md:gap-4 lg:hover:!opacity-100 lg:group-hover/list:opacity-50">
                   <div className="absolute -inset-x-4 -inset-y-4 z-0 hidden rounded-md transition lg:block lg:group-hover:bg-slate-800/50 lg:group-hover:shadow-lg"></div>
-                  <div className="z-10 sm:order-2 sm:col-span-5">
+                  <div className="z-10 order-2 sm:order-2 sm:col-span-5">
                     <h3>
                       <Link
                         className="inline-flex items-baseline font-medium leading-tight text-slate-200 hover:text-teal-300"
@@ -63,7 +63,7 @@ export const JobList = ({projects, limit}: JobProps) => {
                     )} */}
                   </div>
                   <Image
-                    className="img-work rounded border-2 border-slate-200/10 transition group-hover:border-slate-200/30 sm:order-1 sm:col-span-3 w-full h-[180px] "
+                    className="img-work rounded border-2 border-slate-200/10 transition group-hover:border-slate-200/30 order-1 sm:order-1 sm:col-span-3 w-full h-[180px] "
                     src={`${project.image}`} 
                     alt={project.name}
                     width={100}
