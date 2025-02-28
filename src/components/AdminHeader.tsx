@@ -1,8 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState } from "react";
-import { Link as ScrollLink } from "react-scroll";
 import { useRouter } from "next/navigation";
 
 

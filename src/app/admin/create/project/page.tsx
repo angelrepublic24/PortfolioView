@@ -1,11 +1,8 @@
 "use client";
 import { createProject, deleteImage, uploadImage } from "@/api/ProjectApi";
 import ErrorMessage from "@/components/ErrorMessage";
-import api from "@/global/Global";
-import { IProject, ProductForm } from "@/types";
+import { ProductForm } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
-import { set } from "mongoose";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
