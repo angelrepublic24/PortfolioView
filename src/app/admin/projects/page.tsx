@@ -17,6 +17,7 @@ export default function (){
       if(isLoading) return 'Loading....';
       if(isError) return <p>Error loading'</p>
       if(!data) return null
+      console.log(data)
 
       return (
         <AllProjects projects={data}/>
