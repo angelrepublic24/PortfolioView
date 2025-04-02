@@ -3,6 +3,10 @@ import { createProject, deleteImage, uploadImage } from "@/api/ProjectApi";
 import ErrorMessage from "@/components/ErrorMessage";
 import { ProductForm } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+<<<<<<< HEAD
+=======
+import { isAxiosError } from "axios";
+>>>>>>> c7780408a8e21c944ed786bf8d8d79776def0a94
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
