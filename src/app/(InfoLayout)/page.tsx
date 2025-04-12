@@ -5,26 +5,12 @@ import Experiences from "@/components/Experience";
 import { HeroSection } from "@/components/Home";
 import Project from "@/components/Projects";
 import { IProject } from "@/types";
+import ScrollHandler from "@/utils/ScrollHandler";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { scroller } from "react-scroll";
 
 
 
 export default function Home(){
-    const searchParams = useSearchParams();
-  const scrollTo = searchParams.get('scrollTo');
-
-  useEffect(() => {
-    if (scrollTo) {
-      scroller.scrollTo(scrollTo, {
-        smooth: true,
-        duration: 500,
-        offset: -100,
-      });
-    }
-  }, [scrollTo]);
     const {data: projects = [], isLoading, isError} = useQuery<IProject[]>({
         queryFn: getProject,
         queryKey: ['projects'],
@@ -36,6 +22,7 @@ export default function Home(){
 
     return (
         <>
+            <ScrollHandler />
             <HeroSection />
             <About />
             <Experiences/> 
