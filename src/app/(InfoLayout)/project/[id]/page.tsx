@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import { getProjectById } from "@/api/ProjectApi";
 import { IProject } from "@/types";
 import Image from "next/image";
@@ -6,10 +5,10 @@ import React from "react";
 import Link from "next/link";
 
 type Props = {
-  params: Promise<{ id: string }>; // <- necesario con App Router moderno
+  params: { id: string }; // <- necesario con App Router moderno
 };
-export default async function ProjectDetailsPage({  params,}: Props) {
-  const { id } = await params;
+export default async function ProjectDetailsPage({  params}: Props) {
+  const { id } =  params;
   const project: IProject | null = await getProjectById(id);
 
   if (!project) {
