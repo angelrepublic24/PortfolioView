@@ -4,7 +4,7 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-export default async function ProjectPage({ params }: Awaited<{ params: { id: string } }>) {
+export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const project = await getProjectById(id);
 
