@@ -7,7 +7,7 @@ import Link from "next/link";
 type Props = {
   params: { id: string }; // <- necesario con App Router moderno
 };
-export default async function ProjectDetailsPage({  params}: Props) {
+export default async function ProjectDetailsPage({  params}: { params: { id: string };}) {
   const { id } =  params;
   const project: IProject | null = await getProjectById(id);
 
