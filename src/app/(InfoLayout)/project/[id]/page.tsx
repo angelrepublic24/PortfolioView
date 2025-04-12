@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React from "react";
-import { header } from "express-validator";
 import Link from "next/link";
 
 export default function () {
