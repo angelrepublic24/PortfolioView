@@ -1,30 +1,16 @@
-"use client";
 import { getProjectById } from "@/api/ProjectApi";
 import { IProject } from "@/types";
-import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useParams } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 
-export default function () {
-  const params = useParams();
-  const projectId = params?.id as string;
+export default async function ProjectPage({ params }: { params: { id: string } }) {
+  const { id } = await params;
+  const project = await getProjectById(id);
 
-  const {
-    data: project,
-    isLoading,
-    isError,
-  } = useQuery<IProject>({
-    queryKey: ["project", projectId],
-    queryFn: () => getProjectById(projectId),
-    retry: 1,
-    refetchOnWindowFocus: false,
-    enabled: !!projectId,
-  });
-
-  if (isLoading) return "Loading....";
-  if (isError || !project) return "Error loading";
+  if (!project) {
+    return <div>Project not found</div>;
+  }
 
   return (
     <div className="p-10 grid grid-cols-1 md:grid-cols-2">
