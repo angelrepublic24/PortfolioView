@@ -4,13 +4,8 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const project = await getProjectById(id);
-
-  if (!project) {
-    return <div>Project not found</div>;
-  }
+export default async function ProjectDetailsPage({  params,}: {params: { id: string };}) {
+  const project = await getProjectById(params.id);
 
   return (
     <div className="p-10 grid grid-cols-1 md:grid-cols-2">
