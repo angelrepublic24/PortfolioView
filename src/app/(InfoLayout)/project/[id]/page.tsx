@@ -1,12 +1,20 @@
+export const dynamic = "force-dynamic";
 import { getProjectById } from "@/api/ProjectApi";
 import { IProject } from "@/types";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-export default async function ProjectDetailsPage({  params,}: {params: { id: string };}) {
-  const project = await getProjectById(params.id);
+type Props = {
+  params: Promise<{ id: string }>; // <- necesario con App Router moderno
+};
+export default async function ProjectDetailsPage({  params,}: Props) {
+  const { id } = await params;
+  const project: IProject | null = await getProjectById(id);
 
+  if (!project) {
+    return <div>Project not found</div>;
+  }
   return (
     <div className="p-10 grid grid-cols-1 md:grid-cols-2">
       <div className="flex items-center justify-center mb-3">
