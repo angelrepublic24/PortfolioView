@@ -14,6 +14,19 @@ export async function getProject():Promise<IProject[]>{
     return []
 }
 
+export async function getProjectById(projectId: string):Promise<IProject>{
+    try{
+        const {data} = await api(`/projects/${projectId}`);
+        return data.project
+    }   catch(error){
+        if(isAxiosError(error) && error.response){
+            throw new Error(error.response.data)
+        }
+        throw new Error('Unexpected error fetching project');
+  
+    }
+}
+
 export async function createProject(formData: ProductForm){
     try {
         const {data} = await api.post("/project", formData);

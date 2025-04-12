@@ -122,12 +122,12 @@ export default function () {
     };
   }, [formSubmitted]);
   return (
-    <>
+    <div className="flex justify-center py-10">
       <form
         onSubmit={handleSubmit(useFormCreate)}
-        className="bg-[rgba(255,255,255,0.1)] px-5 py-12 rounded-lg space-y-10 mt-10"
+        className="bg-transparent border border-purple-500 p-16 w-1/2 rounded-lg space-y-4"
       >
-        <h1 className="text-white text-3xl font-bold">Register</h1>
+        <h1 className="text-white text-3xl font-bold ">Create a Project</h1>
         <div className="grid grid-cols-1 space-y-3">
           <label htmlFor="name" className="text-2xl text-slate-500">
             Name
@@ -136,7 +136,7 @@ export default function () {
             id="name"
             type="text"
             placeholder="Name"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("name", {
               required: "The name is required",
             })}
@@ -147,11 +147,10 @@ export default function () {
           <label htmlFor="description" className="text-2xl text-slate-500">
             Description
           </label>
-          <input
+          <textarea
             id="description"
-            type="text"
             placeholder="Description"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("description", {
               required: "The description is required",
             })}
@@ -168,7 +167,7 @@ export default function () {
             id="lang"
             type="text"
             placeholder="lang"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("lang", {
               required: "The lang is required",
             })}
@@ -187,7 +186,7 @@ export default function () {
             id="url"
             type="text"
             placeholder="Url"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("url", {
               required: "The url is required",
             })}
@@ -203,7 +202,7 @@ export default function () {
             id="date"
             type="number"
             placeholder="Date"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("date", {
               required: "The year is required",
             })}
@@ -219,7 +218,7 @@ export default function () {
             id="file"
             accept="image/*"
             type="file"
-            className="border-slate-400 bg-transparent border p-3 rounded-lg placeholder-slate-400"
+            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
             {...register("image")}
             onChange={handleImage}
           />
@@ -228,10 +227,10 @@ export default function () {
 
         <input
           type="submit"
-          className="bg-cyan-400 p-3 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
+          className="bg-purple-400 hover:border-purple-500 p-3 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
           value="Create Project"
         />
       </form>
-    </>
+    </div>
   );
 }

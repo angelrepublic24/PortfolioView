@@ -1,5 +1,5 @@
 "use client";
-import AdminHeader from "@/components/AdminHeader";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { usePathname } from "next/navigation";
 import { Providers } from "../providers";
 import { useRouter } from "next/navigation";
@@ -31,10 +31,10 @@ export default function AdminLayout({
   if(isLoading) return 'Loading....';
   if(!data)  return null;
   return (
-    <div className="mx-auto min-h-screen max-w-screen-2xl px-6 py-12 font-sans md:px-12 md:py-20 lg:px-24 lg:py-0">
-      <div className="lg:flex lg:justify-center lg:gap-4">
+    <div className="">
+      <div className="">
           {!hidePage.includes(pathname) && <AdminHeader />}
-          <main id="content" className="pt-24 lg:w-1/2 lg:py-24">
+          <main id="content" className="">
             {children}
           </main>
       </div>

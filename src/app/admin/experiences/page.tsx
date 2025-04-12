@@ -1,6 +1,6 @@
 'use client'
 import { getExperience } from "@/api/ExperienceApi";
-import { AllExperience } from "@/components/AllExperiences";
+import { AllExperience } from "@/components/admin/AllExperiences";
 import { useQuery } from "@tanstack/react-query";
 
 

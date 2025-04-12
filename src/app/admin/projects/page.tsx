@@ -1,6 +1,6 @@
 'use client'
 import { getProject } from "@/api/ProjectApi";
-import {AllProjects} from "@/components/AllProjects";
+import {AllProjects} from "@/components/admin/AllProjects";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 

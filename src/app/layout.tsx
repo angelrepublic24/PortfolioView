@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Signika, Inter } from 'next/font/google';
 import "./globals.css";
 import { Providers } from "./providers";
 import {Toaster} from "sonner"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const signika = Signika({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
+  variable: '--font-signika',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
+  variable: '--font-poppins',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
+  variable: '--font-poppins',
 });
 
 export const metadata: Metadata = {
@@ -44,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900 leading-relaxed text-slate-400 selection:bg-teal-300 selection:text-teal-900`}
+        className={`${signika.variable} ${poppins.variable} ${inter.variable}  antialiased bg-black leading-relaxed text-slate-400 selection:bg-teal-300 selection:text-teal-900`}
       >
         <Toaster position="top-right" richColors/>
         <Providers>

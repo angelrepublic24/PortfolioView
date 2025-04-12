@@ -12,7 +12,13 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        inter: ['var(--font-inter)', 'sans-serif'],
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        signika: ['var(--font-signika)', 'sans-serif'],
+        
+      }
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/line-clamp')],
 } satisfies Config;
