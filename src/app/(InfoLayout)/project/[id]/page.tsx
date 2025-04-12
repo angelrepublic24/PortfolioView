@@ -1,8 +1,24 @@
-import { getProjectById } from "@/api/ProjectApi";
+import { getProject, getProjectById } from "@/api/ProjectApi";
 import { IProject } from "@/types";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
+
+export async function generateStaticParams() {
+  const allProjects = await getProject();
+
+  const validIds: string[] = [];
+
+  for (const project of allProjects) {
+    const id = project._id.toString();
+    const projectData = await getProjectById(id);
+    if (projectData) {
+      validIds.push(id);
+    }
+  }
+
+  return validIds.map((id) => ({ id }));
+}
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await  params;
