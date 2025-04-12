@@ -4,11 +4,8 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 
-type Props = {
-  params: { id: string }; // <- necesario con App Router moderno
-};
-export default async function ProjectDetailsPage({  params}: { params: { id: string };}) {
-  const { id } =  params;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await  params;
   const project: IProject | null = await getProjectById(id);
 
   if (!project) {
