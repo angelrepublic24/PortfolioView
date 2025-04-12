@@ -6,6 +6,7 @@ import Link from "next/link";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await  params;
+  console.log("ID RECIBIDO:", id); 
   const project: IProject | null = await getProjectById(id);
 
   if (!project) {
