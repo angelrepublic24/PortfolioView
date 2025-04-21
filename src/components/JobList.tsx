@@ -44,7 +44,7 @@ export const JobList = ({ projects, limit }: JobProps) => {
                 className="text-purple-500  transition inline-flex items-center border rounded-full border-purple-500 hover:bg-purple-500/30 p-2"
               >
                 <span className="sr-only">View project</span>
-                <Image src={'/icon_8_.png'} width={100} height={100} alt={project.name} className="w-4 h-4"/>
+                <Image src={'/nextIcon.png'} width={100} height={100} alt={project.name} className="w-4 h-4"/>
               </Link>
             </div>
           </div>
