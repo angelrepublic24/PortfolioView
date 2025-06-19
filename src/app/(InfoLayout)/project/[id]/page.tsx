@@ -5,23 +5,21 @@ import React from "react";
 import Link from "next/link";
 
 export async function generateStaticParams() {
-  const allProjects = await getProject();
+  try {
+    const allProjects = await getProject();
+    if (!Array.isArray(allProjects)) return [];
 
-  const validIds: string[] = [];
-
-  for (const project of allProjects) {
-    const id = project._id.toString();
-    const projectData = await getProjectById(id);
-    if (projectData) {
-      validIds.push(id);
-    }
+    return allProjects.map((project) => ({
+      id: project._id.toString(),
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
   }
-
-  return validIds.map((id) => ({ id }));
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await  params;
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
   console.log("ID RECIBIDO:", id); 
   const project: IProject | null = await getProjectById(id);
 
