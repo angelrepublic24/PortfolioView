@@ -1,236 +1,354 @@
 "use client";
-import { createProject, deleteImage, uploadImage } from "@/api/ProjectApi";
-import ErrorMessage from "@/components/ErrorMessage";
+import {
+  createProject,
+  deleteImage,
+  getProjectById,
+  updateProject,
+  uploadImage,
+} from "@/api/ProjectApi";
+import RichTextEditor from "@/components/admin/RichTextEditor";
+import { Field, Input } from "@/components/ui/Input";
 import { ProductForm } from "@/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  ImagePlus,
+  Loader2,
+  Trash2,
+} from "lucide-react";
+import Image from "next/image";
 
-export default function () {
+const initialData: ProductForm = {
+  name: "",
+  description: "",
+  lang: [],
+  url: "",
+  image: "",
+  user: "",
+  date: new Date().getFullYear(),
+  hidden: false,
+};
+
+function ProjectFormInner() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id");
+  const isEdit = Boolean(editId);
+
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [publicId, setPublicId] = useState<string | null>(null);
-  const [deleteTimer, setDeleteTimer] = useState<NodeJS.Timeout | null>(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
 
+  const {
+    register,
+    control,
+    reset,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<ProductForm & { langString: string }>({
+    defaultValues: { ...initialData, langString: "" },
+  });
 
+  // Load project data when editing
+  const { data: existing, isLoading: loadingExisting } = useQuery({
+    queryFn: () => getProjectById(editId!),
+    queryKey: ["project", editId],
+    enabled: isEdit,
+    refetchOnWindowFocus: false,
+  });
 
-  const initialData: ProductForm = {
-    name: "",
-    description: "",
-    lang: [""],
-    url: "",
-    image: "",
-    user: "",
-    date: 0,
-  };
+  useEffect(() => {
+    if (existing) {
+      reset({
+        name: existing.name,
+        description: existing.description || "",
+        lang: existing.lang || [],
+        url: existing.url || "",
+        image: existing.image || "",
+        user: existing.user || "",
+        date: existing.date,
+        hidden: existing.hidden || false,
+        langString: (existing.lang || []).join(", "),
+      });
+      setImageUrl(existing.image || null);
+    }
+  }, [existing, reset]);
 
-  const {register, reset, handleSubmit, formState: { errors }} = useForm({ defaultValues: initialData });
+  const hidden = watch("hidden");
 
   const uploadMutation = useMutation({
     mutationFn: uploadImage,
-    onError: (error) => {
-      toast.error(error.message);
-    },
+    onError: (e) => toast.error(e.message),
     onSuccess: (data) => {
-      toast.success("Image uploaded successfully");
-      setImageUrl(data.image)
-      setPublicId(data.publicId)
-      localStorage.setItem("uploadedImageId", data.publicId);
-
-      if (formSubmitted) {
-        return;
-      }
-      
-      if (deleteTimer) clearTimeout(deleteTimer);
-      const timer = setTimeout(() => {
-        deletingImage(data.publicId);
-        localStorage.removeItem("uploadedImageId")
-      },2 * 60 * 1000); // ⏳ 5 minutos antes de borrar la imagen automáticamente
-      setDeleteTimer(timer);
+      toast.success("Image uploaded");
+      setImageUrl(data.image);
     },
   });
 
-  const deleteMutation = useMutation({
+  const removeImageMutation = useMutation({
     mutationFn: deleteImage,
-    onSuccess: (data) => {
-      toast.error("Image deleted due to inactivity.");
+    onSuccess: () => {
       setImageUrl(null);
-      setPublicId(null);
-      localStorage.removeItem("uploadedImageId");
+      toast.success("Image removed");
     },
   });
-
-  const deletingImage = async (publicIdToDelete: string | null) => {
-    if (!publicIdToDelete) {
-        console.warn("⚠ No hay publicId disponible, no se puede eliminar la imagen.");
-        return;
-    }
-    await deleteMutation.mutate(publicIdToDelete);
-  };
 
   const createMutation = useMutation({
     mutationFn: createProject,
-    onError: async (error) => {
-      toast.error(error.message);
-    },
-    onSuccess: async(data) => {
-      if (deleteTimer) clearTimeout(deleteTimer);
-      toast.success(data.message || "Project created successfully");
-      setFormSubmitted(true);
-      localStorage.removeItem("uploadedImageId")
-      reset();
-      
+    onError: (e) => toast.error(e.message),
+    onSuccess: () => {
+      toast.success("Project created");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-projects"] });
+      router.push("/admin/projects");
     },
   });
 
-  
+  const updateMutation = useMutation({
+    mutationFn: updateProject,
+    onError: (e) => toast.error(e.message),
+    onSuccess: () => {
+      toast.success("Project updated");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-projects"] });
+      queryClient.invalidateQueries({ queryKey: ["project", editId] });
+      router.push("/admin/projects");
+    },
+  });
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if(e.target.files){
-      uploadMutation.mutate(e.target.files[0]);
-    }
-    
+    if (e.target.files?.[0]) uploadMutation.mutate(e.target.files[0]);
   };
 
-  const useFormCreate = async (formData: ProductForm) => {
-    createMutation.mutate({...formData, image: imageUrl});
+  const extractPublicId = (url: string | null) => {
+    if (!url) return null;
+    const parts = url.split("/");
+    const filename = parts.pop();
+    const folder = parts.pop();
+    if (filename && folder) return `${folder}/${filename.split(".")[0]}`;
+    return null;
   };
 
-  useEffect(() => {
-    const storedPublicId = localStorage.getItem("uploadedImageId");
-  
-    if (storedPublicId) {
-      deletingImage(storedPublicId);
+  const handleRemoveImage = () => {
+    const publicId = extractPublicId(imageUrl);
+    if (publicId) removeImageMutation.mutate(publicId);
+    else setImageUrl(null);
+  };
+
+  const onSubmit = (formData: ProductForm & { langString: string }) => {
+    const { langString, user, ...rest } = formData;
+    const payload: Partial<ProductForm> = {
+      ...rest,
+      image: imageUrl,
+      lang: langString
+        ? langString.split(",").map((s) => s.trim()).filter(Boolean)
+        : rest.lang,
+      date: Number(rest.date),
+    };
+
+    if (isEdit && editId) {
+      updateMutation.mutate({ id: editId, formData: payload });
+    } else {
+      // Backend reads user from JWT (req.user) on create
+      createMutation.mutate(payload);
     }
-  
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!formSubmitted) {
-        const storedPublicId = localStorage.getItem("uploadedImageId");
-        if (storedPublicId) {
-          deletingImage(storedPublicId);
-        }
-      }
-    };
-  
-    window.addEventListener("beforeunload", handleBeforeUnload);
-  
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [formSubmitted]);
+  };
+
+  if (isEdit && loadingExisting) {
+    return (
+      <div className="text-zinc-500 flex items-center gap-2">
+        <Loader2 size={16} className="animate-spin" /> Loading project…
+      </div>
+    );
+  }
+
+  const submitting = createMutation.isPending || updateMutation.isPending;
+
   return (
-    <div className="flex justify-center py-10">
-      <form
-        onSubmit={handleSubmit(useFormCreate)}
-        className="bg-transparent border border-purple-500 p-16 w-1/2 rounded-lg space-y-4"
-      >
-        <h1 className="text-white text-3xl font-bold ">Create a Project</h1>
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="name" className="text-2xl text-slate-500">
-            Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            placeholder="Name"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("name", {
-              required: "The name is required",
-            })}
-          />
-          {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-        </div>
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="description" className="text-2xl text-slate-500">
-            Description
-          </label>
-          <textarea
-            id="description"
-            placeholder="Description"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("description", {
-              required: "The description is required",
-            })}
-          />
-          {errors.description && (
-            <ErrorMessage>{errors.description?.message}</ErrorMessage>
-          )}
-        </div>
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="lang" className="text-2xl text-slate-500">
-            Languages
-          </label>
-          <input
-            id="lang"
-            type="text"
-            placeholder="lang"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("lang", {
-              required: "The lang is required",
-            })}
-          />
-          {errors.lang &&
-            Array.isArray(errors.lang) &&
-            errors.lang.map((error, index) => (
-              <ErrorMessage key={index}>{error.message}</ErrorMessage>
-            ))}
-        </div>
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="url" className="text-2xl text-slate-500">
-            Url
-          </label>
-          <input
-            id="url"
-            type="text"
-            placeholder="Url"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("url", {
-              required: "The url is required",
-            })}
-          />
-          {errors.url && <ErrorMessage>{errors.url.message}</ErrorMessage>}
+    <div className="max-w-5xl space-y-6">
+      <div>
+        <Link
+          href="/admin/projects"
+          className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-brand-400 mb-3"
+        >
+          <ArrowLeft size={14} /> Back to projects
+        </Link>
+        <h1 className="font-signika text-3xl md:text-4xl font-bold text-zinc-100">
+          {isEdit ? "Edit project" : "New project"}
+        </h1>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: fields */}
+        <div className="lg:col-span-2 space-y-5 bg-zinc-900/40 border border-zinc-800 rounded-xl p-6">
+          <Field label="Name" error={errors.name?.message} htmlFor="name">
+            <Input
+              id="name"
+              placeholder="My awesome project"
+              {...register("name", { required: "Name is required" })}
+            />
+          </Field>
+
+          <Field
+            label="Description"
+            error={errors.description?.message}
+            hint="Use the toolbar above to format text — headings, lists, links and more."
+          >
+            <Controller
+              control={control}
+              name="description"
+              rules={{ required: "Description is required" }}
+              render={({ field }) => (
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Describe what this project does, why it matters, the tech, the result…"
+                />
+              )}
+            />
+          </Field>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Field
+              label="Tech stack"
+              hint="Comma-separated, e.g. Next.js, MongoDB"
+              htmlFor="langString"
+            >
+              <Input
+                id="langString"
+                placeholder="Next.js, NestJS, MongoDB"
+                {...register("langString")}
+              />
+            </Field>
+
+            <Field label="Year" error={errors.date?.message as string} htmlFor="date">
+              <Input
+                id="date"
+                type="number"
+                placeholder="2025"
+                {...register("date", { required: "Year is required" })}
+              />
+            </Field>
+          </div>
+
+          <Field label="Live URL" error={errors.url?.message} htmlFor="url">
+            <Input
+              id="url"
+              type="url"
+              placeholder="https://example.com"
+              {...register("url")}
+            />
+          </Field>
         </div>
 
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="date" className="text-2xl text-slate-500">
-            Year
-          </label>
-          <input
-            id="date"
-            type="number"
-            placeholder="Date"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("date", {
-              required: "The year is required",
-            })}
-          />
-          {errors.date && <ErrorMessage>{errors.date.message}</ErrorMessage>}
-        </div>
+        {/* Right: image + visibility + actions */}
+        <div className="space-y-6">
+          <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6">
+            <p className="text-xs uppercase tracking-wider text-zinc-400 mb-3">
+              Cover image
+            </p>
+            {imageUrl ? (
+              <div className="space-y-3">
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950">
+                  <Image
+                    src={imageUrl}
+                    alt="cover"
+                    fill
+                    sizes="320px"
+                    className="object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="inline-flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300"
+                >
+                  <Trash2 size={12} /> Remove image
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center aspect-video border border-dashed border-zinc-700 rounded-lg cursor-pointer hover:border-brand-500/40 hover:bg-brand-500/5 transition">
+                {uploadMutation.isPending ? (
+                  <Loader2 size={20} className="animate-spin text-brand-400" />
+                ) : (
+                  <>
+                    <ImagePlus size={20} className="text-zinc-500 mb-2" />
+                    <span className="text-xs text-zinc-500">
+                      Click to upload
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImage}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
 
-        <div className="grid grid-cols-1 space-y-3">
-          <label htmlFor="file" className="text-2xl text-slate-500">
-            Image
-          </label>
-          <input
-            id="file"
-            accept="image/*"
-            type="file"
-            className="border-purple-500 bg-transparent border p-3 rounded-lg placeholder-slate-400"
-            {...register("image")}
-            onChange={handleImage}
-          />
-          {errors.image && <ErrorMessage>{errors.image.message}</ErrorMessage>}
-        </div>
+          <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6">
+            <p className="text-xs uppercase tracking-wider text-zinc-400 mb-3">
+              Visibility
+            </p>
+            <button
+              type="button"
+              onClick={() => setValue("hidden", !hidden)}
+              className={`flex items-center justify-between w-full px-4 py-3 rounded-lg border transition ${
+                hidden
+                  ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                  : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+              }`}
+            >
+              <span className="flex items-center gap-2 text-sm">
+                {hidden ? <EyeOff size={14} /> : <Eye size={14} />}
+                {hidden ? "Hidden from site" : "Visible on site"}
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider">
+                {hidden ? "Draft" : "Public"}
+              </span>
+            </button>
+          </div>
 
-        <input
-          type="submit"
-          className="bg-purple-400 hover:border-purple-500 p-3 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
-          value="Create Project"
-        />
+          <div className="space-y-2">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium transition disabled:opacity-50 shadow-[0_0_30px_-8px_rgba(139,92,246,0.6)]"
+            >
+              {submitting && <Loader2 size={14} className="animate-spin" />}
+              {isEdit ? "Save changes" : "Create project"}
+            </button>
+            <Link
+              href="/admin/projects"
+              className="block text-center w-full px-4 py-2.5 rounded-lg border border-zinc-800 text-zinc-400 hover:bg-zinc-900 hover:text-white text-sm transition"
+            >
+              Cancel
+            </Link>
+          </div>
+        </div>
       </form>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectFormInner />
+    </Suspense>
   );
 }

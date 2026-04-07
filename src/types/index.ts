@@ -6,10 +6,12 @@ export type IProject = {
     url: string,
     image: string | null,
     user: string,
-    date: number
+    date: number,
+    hidden?: boolean,
+    order?: number
 }
 
-export type ProductForm = Omit<IProject, '_id'> 
+export type ProductForm = Omit<IProject, '_id'>
 
 export type LoginForm = {
     email: string,
@@ -26,7 +28,9 @@ export type IExperience = {
     lang: string[],
     url: string,
     user: string,
-    date: [number, string | number]
+    date: [number, string | number],
+    hidden?: boolean,
+    order?: number
 }
 
 export type ExperienceForm = Omit<IExperience, '_id'| 'date'> & { date: [number, string | number] | string };

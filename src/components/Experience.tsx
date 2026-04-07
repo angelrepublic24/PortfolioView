@@ -1,182 +1,115 @@
-import React from "react";
-import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-
-import { IExperience } from "@/types";
+"use client";
 import { useQuery } from "@tanstack/react-query";
 import { getExperience } from "@/api/ExperienceApi";
+import { IExperience } from "@/types";
+import SectionHeading from "./ui/SectionHeading";
+import Container from "./ui/Container";
+import { useState } from "react";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
-interface Props {
-  experiences: IExperience[]
-}
 export default function Experiences() {
-  const {data: experiences = [], isLoading, isError} = useQuery<IExperience[]>({
+  const [active, setActive] = useState(0);
+  const { data: experiences = [], isLoading, isError } = useQuery<IExperience[]>({
     queryFn: getExperience,
-    queryKey: ['experiences'],
+    queryKey: ["experiences"],
     retry: 1,
-    refetchOnWindowFocus: false
-})
+    refetchOnWindowFocus: false,
+  });
 
-if(isLoading) return 'Loading....'
-if(isError) return 'Error loading'
-  const openResume = () => {
-    window.open('/Resume.pdf', "_blank")
-  }
+  if (isLoading)
+    return (
+      <section id="experience" className="py-24">
+        <Container>
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 bg-zinc-900 rounded" />
+            <div className="h-40 bg-zinc-900/50 rounded-xl" />
+          </div>
+        </Container>
+      </section>
+    );
+  if (isError) return null;
 
-  if(!experiences) return
-
+  const visible = experiences.filter((e) => !e.hidden);
+  const current = visible[active];
 
   return (
-    <section id="experience" className="relative px-6 py-20 bg-black/80 flex justify-center font-poppins">
-      {/* <div className=" inset-0 rounded-xl z-0 " /> */}
+    <section id="experience" className="relative py-24 md:py-32">
+      <Container>
+        <SectionHeading
+          number="02"
+          eyebrow="Career"
+          title="Where I've worked"
+        />
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center text-white font-poppins rounded-b-2xl py-20 bg-[url('/wavy.png')] bg-no-repeat bg-cover h-full w-[95%] px-4">
-        <p className="text-purple-500 text-sm font-semibold tracking-wider uppercase font-poppins">
-          Working Skills
-        </p>
-        <h2 className="text-[40px] font-bold font-signika mt-2">
-          MY EXPERIENCE
-        </h2>
+        {visible.length === 0 ? (
+          <p className="text-zinc-500">No experience to show yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-8">
+            {/* Tabs */}
+            <div className="flex md:flex-col overflow-x-auto md:overflow-x-hidden border-b md:border-b-0 md:border-l border-zinc-800 md:max-w-[200px]">
+              {visible.map((exp, i) => (
+                <button
+                  key={exp._id}
+                  onClick={() => setActive(i)}
+                  title={exp.company}
+                  className={`flex-shrink-0 md:flex-shrink md:w-full text-left px-4 py-3 text-sm font-mono transition-all border-b-2 md:border-b-0 md:border-l-2 -mb-px md:-ml-px md:max-w-full md:overflow-hidden md:text-ellipsis md:whitespace-nowrap whitespace-nowrap ${
+                    i === active
+                      ? "border-brand-400 text-brand-400 bg-brand-500/5"
+                      : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40"
+                  }`}
+                >
+                  {exp.company}
+                </button>
+              ))}
+            </div>
 
-        <Link
-          href="/Resume.pdf"
-          target="_blank"
-          className="mt-6 font-signika inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full transition text-base"
-        >
-          VIEW FULL RESUME
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 ml-2"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3" />
-          </svg>
-        </Link>
-      </div>
+            {/* Content */}
+            {current && (
+              <div className="space-y-4 animate-fade-in">
+                <h3 className="text-xl font-semibold text-zinc-100">
+                  {current.position}{" "}
+                  <span className="text-brand-400">
+                    @{" "}
+                    {current.url ? (
+                      <Link
+                        href={current.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline inline-flex items-center gap-1"
+                      >
+                        {current.company}
+                        <ExternalLink size={14} />
+                      </Link>
+                    ) : (
+                      current.company
+                    )}
+                  </span>
+                </h3>
+                <p className="font-mono text-xs text-zinc-500">
+                  {current.date[0]} — {current.date[1]}
+                </p>
+                <div
+                  className="prose prose-invert prose-sm max-w-none prose-p:text-zinc-400 prose-li:text-zinc-400 prose-strong:text-zinc-200 prose-a:text-brand-400"
+                  dangerouslySetInnerHTML={{ __html: current.description }}
+                />
+                {current.lang && current.lang.length > 0 && (
+                  <ul className="flex flex-wrap gap-1.5 pt-2">
+                    {current.lang.map((l, i) => (
+                      <li
+                        key={i}
+                        className="text-[10px] font-mono uppercase tracking-wider text-brand-300 bg-brand-500/10 border border-brand-500/20 rounded-full px-2 py-0.5"
+                      >
+                        {l}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </Container>
     </section>
   );
-// return (
-//     <>
-//       <section
-//         id="experience"
-//         className="mb-16 scroll-mt-16 md:mb-24 lg:mb-36 lg:scroll-mt-24"
-//         aria-label="Work experience"
-//       >
-//         <div className="sticky top-0 z-20 -mx-6 mb-4 w-screen bg-slate-900/75 px-6 py-5 backdrop-blur md:-mx-12 md:px-12 lg:sr-only lg:relative lg:top-auto lg:mx-auto lg:w-full lg:px-0 lg:py-0 lg:opacity-0">
-//           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-200 lg:sr-only">
-//             Experience
-//           </h2>
-//         </div>
-//         <div>
-//           <ol className="group/list">
-
-//         {experiences.map((experience) =>(
-//           <li className="mb-12" key={experience._id}>
-//           <div className="group relative grid pb-1 transition-all sm:grid-cols-8 sm:gap-8 md:gap-4 lg:hover:!opacity-100 lg:group-hover/list:opacity-50">
-//             <div className="absolute -inset-x-4 -inset-y-4 z-0 hidden rounded-md transition motion-reduce:transition-none lg:-inset-x-6 lg:block lg:group-hover:bg-slate-800/50 lg:group-hover:shadow-[inset_0_1px_0_0_rgba(148,163,184,0.1)] lg:group-hover:drop-shadow-lg"></div>
-//             <header
-//               className="z-10 mb-2 mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:col-span-2"
-//               aria-label="2018 to 2024"
-//             >
-//               {experience.date[0]} - {experience.date[1]}
-//             </header>
-//             <div className="z-10 sm:col-span-6">
-//               <h3 className="font-medium leading-snug text-slate-200">
-//                 <div>
-//                   <a
-//                     className="inline-flex items-baseline font-medium leading-tight text-slate-200 hover:text-teal-300 focus-visible:text-teal-300  group/link text-base"
-//                     href={experience.url}
-//                     target="_blank"
-//                     rel="noreferrer noopener"
-//                     aria-label="Lead Engineer at Upstatement (opens in a new tab)"
-//                   >
-//                     <span className="absolute -inset-x-4 -inset-y-2.5 hidden rounded md:-inset-x-6 md:-inset-y-4 lg:block"></span>
-//                     <span>
-//                       {experience.position}
-//                       <span className="inline-block">
-//                         <svg
-//                           xmlns="http://www.w3.org/2000/svg"
-//                           viewBox="0 0 20 20"
-//                           fill="currentColor"
-//                           className="inline-block h-4 w-4 shrink-0 transition-transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 group-focus-visible/link:-translate-y-1 group-focus-visible/link:translate-x-1 motion-reduce:transition-none ml-1 translate-y-px"
-//                           aria-hidden="true"
-//                         >
-//                           <path
-//                             fillRule="evenodd"
-//                             d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-//                             clipRule="evenodd"
-//                           ></path>
-//                         </svg>
-//                       </span>
-//                     </span>
-//                   </a>
-//                 </div>
-//                 <div>
-//                   <div className="text-slate-500" aria-hidden="true">
-//                     {experience.company}
-//                   </div>
-//                 </div>
-//                 <div>
-//                   {/* <div className="text-slate-500" aria-hidden="true">
-//                     Engineer
-//                   </div> */}
-//                 </div>
-//               </h3>
-//               <p className="mt-2 text-sm leading-normal">
-//               <ReactMarkdown>{experience.description}</ReactMarkdown>
-//               </p>
-//               <ul
-//                 className="mt-2 flex flex-wrap"
-//                 aria-label="Technologies used"
-//               >
-//                 {experience.lang.map((skill, index )=> (
-//                   <li className="mr-1.5 mt-2" key={index}>
-//                   <div className="flex items-center rounded-full bg-teal-400/10 px-3 py-1 text-xs font-medium leading-5 text-teal-300 ">
-//                     {skill}
-//                   </div>
-//                 </li>
-//                 ))}
-//               </ul>
-//             </div>
-//           </div>
-//         </li>
-//         ))}
-//           </ol>
-//           <div className="mt-12">
-//             <Link
-//               className="inline-flex items-baseline font-medium leading-tight text-slate-200 hover:text-teal-300 focus-visible:text-teal-300 font-semibold text-slate-200 group/link text-base"
-//               href="/Resume.pdf"
-              
-//               target="_blank"
-//               rel="noreferrer noopener"
-//               aria-label="View Full Résumé (opens in a new tab)"
-//             >
-//               <span>
-//                 View Full &nbsp;
-//                 <span className="inline-block">
-//                   Resume
-//                   <svg
-//                     xmlns="http://www.w3.org/2000/svg"
-//                     viewBox="0 0 20 20"
-//                     fill="currentColor"
-//                     className="inline-block h-4 w-4 shrink-0 transition-transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 group-focus-visible/link:-translate-y-1 group-focus-visible/link:translate-x-1 motion-reduce:transition-none ml-1 translate-y-px"
-//                     aria-hidden="true"
-//                   >
-//                     <path
-//                       fillRule="evenodd"
-//                       d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-//                       clipRule="evenodd"
-//                     ></path>
-//                   </svg>
-//                 </span>
-//               </span>
-//             </Link>
-//           </div>
-//         </div>
-//       </section>
-//     </>
-//   );
 }

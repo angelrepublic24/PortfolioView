@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   title: "Angel Almonte | Crafting Modern, Scalable & Efficient Web Solutions",
   description: "Full-Stack Web Developer specializing in scalable web applications, API development, authentication, and high-performance UI/UX. Passionate about building seamless digital experiences using NestJS, Next.js, React, MongoDB, and Tailwind CSS, always learning and innovating",
   icons: {
-    icon: "https://res.cloudinary.com/ditz1jg7z/image/upload/v1739338318/logo_y22pya.ico"
+    icon: "/favicon.svg"
   },
   openGraph: {
     title: "Angel Almonte | Crafting Modern, Scalable & Efficient Web Solutions",
@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${signika.variable} ${poppins.variable} ${inter.variable}  antialiased bg-black leading-relaxed text-slate-400 selection:bg-teal-300 selection:text-teal-900`}
+        className={`${signika.variable} ${poppins.variable} ${inter.variable} font-poppins antialiased bg-zinc-950 leading-relaxed text-zinc-300`}
       >
         <Toaster position="top-right" richColors/>
         <Providers>

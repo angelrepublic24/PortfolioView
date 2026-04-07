@@ -6,15 +6,13 @@ export default function InfoLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-  return(
+  return (
     <>
       <Header />
-      <main id="content" className="">
+      <main id="content">
         {children}
-         <Footer />
+        <Footer />
       </main>
-
     </>
-  )
+  );
 }
