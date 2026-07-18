@@ -1,3 +1,7 @@
+export type ProjectKind = "personal" | "client" | "employer";
+export type ProjectStatus = "live" | "in-dev" | "pre-launch" | "frontier" | "archived";
+export type Discipline = "WEB" | "APP" | "API" | "DB" | "PAY" | "OPS" | "3D";
+
 export type IProject = {
     _id: string;
     name: string;
@@ -8,7 +12,15 @@ export type IProject = {
     user: string,
     date: number,
     hidden?: boolean,
-    order?: number
+    order?: number,
+    // --- Drawing Set design metadata (optional; derived from data when absent) ---
+    summary?: string;
+    kind?: ProjectKind;
+    client?: string;
+    role?: string;
+    status?: ProjectStatus;
+    disciplines?: Discipline[];
+    featured?: boolean;
 }
 
 export type ProductForm = Omit<IProject, '_id'>
@@ -29,6 +41,7 @@ export type IExperience = {
     url: string,
     user: string,
     date: [number, string | number],
+    scope?: string;
     hidden?: boolean,
     order?: number
 }

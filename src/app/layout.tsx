@@ -1,63 +1,64 @@
 import type { Metadata } from "next";
-import { Poppins, Signika, Inter } from 'next/font/google';
+import { Poppins, Signika, IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import {Toaster} from "sonner"
+import { Toaster } from "sonner";
 
-const signika = Signika({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
-  variable: '--font-signika',
-});
+const signika = Signika({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-signika" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-poppins" });
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
-  variable: '--font-poppins',
-});
+// Drawing-set faces: mono is the draftsman's lettering, sans is for prose.
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono" });
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
 
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // Personaliza según lo que uses
-  variable: '--font-poppins',
-});
+const DESCRIPTION =
+  "Angel Almonte — New Jersey–based full-stack software developer and founder with 6+ years building complete products end to end: the web app, the mobile app, and the backend, database, payments and operations beneath them.";
 
 export const metadata: Metadata = {
-  title: "Angel Almonte | Crafting Modern, Scalable & Efficient Web Solutions",
-  description: "Full-Stack Web Developer specializing in scalable web applications, API development, authentication, and high-performance UI/UX. Passionate about building seamless digital experiences using NestJS, Next.js, React, MongoDB, and Tailwind CSS, always learning and innovating",
-  icons: {
-    icon: "/favicon.svg"
+  metadataBase: new URL("https://www.almonteportfolio.com"),
+  title: {
+    default: "Angel Almonte — Full-Stack Software Developer & Founder",
+    template: "%s — Angel Almonte",
   },
+  description: DESCRIPTION,
+  keywords: [
+    "Angel Almonte", "full-stack developer", "software engineer", "software founder",
+    "New Jersey", "Next.js", "NestJS", "React", "React Native", "Node.js",
+    "MongoDB", "PostgreSQL", "TypeScript", "Stripe", "Three.js", "portfolio",
+  ],
+  authors: [{ name: "Angel Almonte" }],
+  creator: "Angel Almonte",
+  alternates: { canonical: "/" },
+  // favicon is provided by app/icon.svg (Drawing-Set amber AA)
   openGraph: {
-    title: "Angel Almonte | Crafting Modern, Scalable & Efficient Web Solutions",
-    description: "Full-Stack Web Developer specializing in scalable web applications, API development, authentication, and high-performance UI/UX. Passionate about building seamless digital experiences using NestJS, Next.js, React, MongoDB, and Tailwind CSS, always learning and innovating",
-    images: [
-      {
-        url: "https://res.cloudinary.com/ditz1jg7z/image/upload/v1739337807/logo_hktemx.webp",
-        width: 1200,
-        height: 630,
-        alt: "Angel Almonte | FullStack Web Developer"
-      }
-    ],
-    locale: 'en_US',
-    type: 'website',
-  }
+    type: "website",
+    locale: "en_US",
+    url: "https://www.almonteportfolio.com",
+    siteName: "Angel Almonte",
+    title: "Angel Almonte — Full-Stack Software Developer & Founder",
+    description: DESCRIPTION,
+    // og:image is provided by app/opengraph-image.tsx (Drawing-Set styled card)
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Angel Almonte — Full-Stack Software Developer & Founder",
+    description: DESCRIPTION,
+    // twitter:image is provided by app/twitter-image.tsx
+  },
+  robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const themeScript = `(function(){try{var t=localStorage.getItem('ds-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${signika.variable} ${poppins.variable} ${inter.variable} font-poppins antialiased bg-zinc-950 leading-relaxed text-zinc-300`}
+        className={`${signika.variable} ${poppins.variable} ${plexMono.variable} ${inter.variable} font-poppins antialiased bg-zinc-950 leading-relaxed text-zinc-300`}
       >
-        <Toaster position="top-right" richColors/>
-        <Providers>
-        {children}
-        </Providers>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <Toaster position="top-right" richColors />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -138,6 +138,22 @@ export default function AdminDashboard() {
             Update your career timeline and rich job descriptions.
           </p>
         </Link>
+
+        <Link
+          href="/admin/site-content"
+          className="group bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 hover:border-brand-500/40 hover:bg-zinc-900/60 transition-all"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-zinc-100 font-medium">Edit site content</h3>
+            <ArrowUpRight
+              size={16}
+              className="text-zinc-500 group-hover:text-brand-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+            />
+          </div>
+          <p className="text-sm text-zinc-500">
+            Hero, bio, general notes, section-cut and contact — the home-page copy, from the database.
+          </p>
+        </Link>
       </div>
     </div>
   );

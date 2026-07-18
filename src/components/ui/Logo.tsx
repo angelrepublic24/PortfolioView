@@ -8,8 +8,8 @@ interface LogoProps {
 }
 
 /**
- * Angel Almonte monogram logo. Two stylized "A" forms locked together.
- * Uses currentColor so it can be themed via Tailwind text-* classes.
+ * Angel Almonte monogram — Drawing-Set style: an "AA" in amber line-work inside a
+ * drafting frame (matches the favicon), with a monospace "A·ALMONTE" wordmark.
  */
 export default function Logo({
   size = 36,
@@ -26,52 +26,13 @@ export default function Logo({
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <defs>
-        <linearGradient id="aaGrad" x1="0" y1="0" x2="48" y2="48">
-          <stop offset="0%" stopColor="#a78bfa" />
-          <stop offset="100%" stopColor="#7c3aed" />
-        </linearGradient>
-      </defs>
-      <rect
-        x="2"
-        y="2"
-        width="44"
-        height="44"
-        rx="11"
-        stroke="url(#aaGrad)"
-        strokeWidth="2"
-        fill="rgba(139,92,246,0.08)"
-      />
+      <rect x="2" y="2" width="44" height="44" rx="11" stroke="#F2A63C" strokeWidth="2" fill="rgba(242,166,60,0.06)" />
       {/* First A */}
-      <path
-        d="M11 34 L18 14 L25 34"
-        stroke="url(#aaGrad)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M13.5 27 L22.5 27"
-        stroke="url(#aaGrad)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      {/* Second A — overlapping */}
-      <path
-        d="M23 34 L30 14 L37 34"
-        stroke="url(#aaGrad)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M25.5 27 L34.5 27"
-        stroke="url(#aaGrad)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
+      <path d="M11 34 L18 14 L25 34" stroke="#F2A63C" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M13.5 27 L22.5 27" stroke="#F2A63C" strokeWidth="2.4" strokeLinecap="round" />
+      {/* Second A */}
+      <path d="M23 34 L30 14 L37 34" stroke="#F2A63C" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M25.5 27 L34.5 27" stroke="#F2A63C" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   );
 
@@ -79,8 +40,8 @@ export default function Logo({
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       {mark}
       {showText && (
-        <span className="font-signika text-base font-semibold tracking-tight text-zinc-100">
-          angel<span className="text-brand-400">.</span>
+        <span className="font-mono text-sm font-semibold uppercase tracking-[0.12em] text-zinc-100">
+          A<span className="text-brand-400">·</span>Almonte
         </span>
       )}
     </span>
