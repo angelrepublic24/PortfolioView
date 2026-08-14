@@ -2,12 +2,19 @@ export type ProjectKind = "personal" | "client" | "employer";
 export type ProjectStatus = "live" | "in-dev" | "pre-launch" | "frontier" | "archived";
 export type Discipline = "WEB" | "APP" | "API" | "DB" | "PAY" | "OPS" | "3D";
 
+/** One destination for a project — a product can ship on several (website, iOS, Android…). */
+export type ProjectLink = {
+    label: string;
+    url: string;
+}
+
 export type IProject = {
     _id: string;
     name: string;
     description: string;
     lang: string[],
-    url: string,
+    /** Optional: a project still in development may have no domain yet. */
+    url?: string,
     image: string | null,
     user: string,
     date: number,
@@ -21,6 +28,7 @@ export type IProject = {
     status?: ProjectStatus;
     disciplines?: Discipline[];
     featured?: boolean;
+    links?: ProjectLink[];
 }
 
 export type ProductForm = Omit<IProject, '_id'>

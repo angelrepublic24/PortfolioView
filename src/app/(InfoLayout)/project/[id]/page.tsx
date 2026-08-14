@@ -1,4 +1,5 @@
 import { getProject, getProjectById } from "@/api/ProjectApi";
+import { linksFor } from "@/lib/stack";
 import { IProject } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,6 +34,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     );
   }
 
+  const links = linksFor(project);
+
   return (
     <div className="pt-32 pb-24">
       <div className="max-w-5xl mx-auto px-6 md:px-8">
@@ -51,16 +54,21 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <h1 className="font-signika text-4xl md:text-6xl font-bold tracking-tight text-zinc-100">
             {project.name}
           </h1>
-          {project.url && (
-            <Link
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-brand-400 hover:text-brand-300 text-sm w-fit"
-            >
-              <ExternalLink size={14} />
-              {project.url}
-            </Link>
+          {links.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              {links.map((l) => (
+                <Link
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-brand-400 hover:text-brand-300 text-sm w-fit"
+                >
+                  <ExternalLink size={14} />
+                  {l.label}
+                </Link>
+              ))}
+            </div>
           )}
         </div>
 

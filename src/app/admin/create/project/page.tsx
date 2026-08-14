@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -25,7 +25,9 @@ import {
   EyeOff,
   ImagePlus,
   Loader2,
+  Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -38,7 +40,11 @@ const initialData: ProductForm = {
   user: "",
   date: new Date().getFullYear(),
   hidden: false,
+  links: [],
 };
+
+/** Suggestions for the extra destinations a product can ship on. */
+const LINK_PRESETS = ["Website", "iOS App", "Android App", "Web App", "Case study", "GitHub"];
 
 function ProjectFormInner() {
   const queryClient = useQueryClient();
@@ -61,6 +67,11 @@ function ProjectFormInner() {
     defaultValues: { ...initialData, langString: "" },
   });
 
+  const { fields: linkFields, append: appendLink, remove: removeLink } = useFieldArray({
+    control,
+    name: "links",
+  });
+
   // Load project data when editing
   const { data: existing, isLoading: loadingExisting } = useQuery({
     queryFn: () => getProjectById(editId!),
@@ -80,6 +91,7 @@ function ProjectFormInner() {
         user: existing.user || "",
         date: existing.date,
         hidden: existing.hidden || false,
+        links: existing.links || [],
         langString: (existing.lang || []).join(", "),
       });
       setImageUrl(existing.image || null);
@@ -149,6 +161,17 @@ function ProjectFormInner() {
 
   const onSubmit = (formData: ProductForm & { langString: string }) => {
     const { langString, user, ...rest } = formData;
+
+    const links = (rest.links ?? []).map((l) => ({
+      label: l.label?.trim() ?? "",
+      url: l.url?.trim() ?? "",
+    }));
+    // Never drop a half-filled row on the floor behind a success toast.
+    if (links.some((l) => Boolean(l.label) !== Boolean(l.url))) {
+      toast.error("Every extra link needs both a label and a URL");
+      return;
+    }
+
     const payload: Partial<ProductForm> = {
       ...rest,
       image: imageUrl,
@@ -156,6 +179,7 @@ function ProjectFormInner() {
         ? langString.split(",").map((s) => s.trim()).filter(Boolean)
         : rest.lang,
       date: Number(rest.date),
+      links: links.filter((l) => l.label && l.url),
     };
 
     if (isEdit && editId) {
@@ -251,6 +275,64 @@ function ProjectFormInner() {
               {...register("url")}
             />
           </Field>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm text-zinc-300">Extra links</label>
+              <button
+                type="button"
+                onClick={() => appendLink({ label: "", url: "" })}
+                className="inline-flex items-center gap-1.5 text-xs text-brand-400 hover:text-brand-300"
+              >
+                <Plus size={12} /> Add link
+              </button>
+            </div>
+            <p className="text-xs text-zinc-500 mb-3">
+              For products that ship on more than one surface — e.g. a website{" "}
+              <span className="text-zinc-400">and</span> a mobile app. Each one is shown as its own
+              button on the project sheet. The Live URL above is always listed first.
+            </p>
+
+            {linkFields.length === 0 ? (
+              <p className="text-xs text-zinc-600 border border-dashed border-zinc-800 rounded-lg px-4 py-3">
+                No extra links — only the Live URL is shown.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {linkFields.map((field, i) => (
+                  <div key={field.id} className="flex items-start gap-2">
+                    <div className="w-40 shrink-0">
+                      <Input
+                        list="link-label-presets"
+                        placeholder="iOS App"
+                        {...register(`links.${i}.label` as const)}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="url"
+                        placeholder="https://apps.apple.com/…"
+                        {...register(`links.${i}.url` as const)}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeLink(i)}
+                      aria-label="Remove link"
+                      className="mt-2.5 text-zinc-600 hover:text-red-400 transition"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <datalist id="link-label-presets">
+              {LINK_PRESETS.map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </div>
         </div>
 
         {/* Right: image + visibility + actions */}

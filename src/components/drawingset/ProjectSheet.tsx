@@ -1,5 +1,5 @@
 import type { IProject, Discipline, ProjectStatus } from "@/types";
-import { STATUS_META, statusFor, disciplinesFor, clientLabel, stackRows } from "@/lib/stack";
+import { STATUS_META, statusFor, disciplinesFor, clientLabel, stackRows, linksFor } from "@/lib/stack";
 import TopologyDiagram from "./TopologyDiagram";
 
 const BASE_DISCIPLINES: Discipline[] = ["WEB", "APP", "API", "DB", "PAY", "OPS"];
@@ -37,6 +37,7 @@ export default function ProjectSheet({
   const cells = disciplines.includes("3D") ? [...BASE_DISCIPLINES, "3D" as Discipline] : BASE_DISCIPLINES;
   const rows = stackRows(project.lang);
   const client = clientLabel(project);
+  const links = linksFor(project);
 
   return (
     <section
@@ -96,10 +97,22 @@ export default function ProjectSheet({
                   <td>{r.layer}</td>
                 </tr>
               ))}
-              {project.url ? (
+              {links.length ? (
                 <tr>
                   <td colSpan={2}>
-                    <a href={project.url} target="_blank" rel="noopener noreferrer" className="ext">Visit ↗</a>
+                    <span className="sheet-links">
+                      {links.map((l) => (
+                        <a
+                          key={l.url}
+                          href={l.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ext"
+                        >
+                          {l.label} ↗
+                        </a>
+                      ))}
+                    </span>
                   </td>
                 </tr>
               ) : null}

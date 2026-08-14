@@ -201,6 +201,9 @@ body {
 .drawing-set .schedule th{ color:var(--ds-ink); letter-spacing:.08em; text-transform:uppercase; font-size:9.5px; }
 .drawing-set .schedule td b{ color:var(--ds-ink); font-weight:600; }
 .drawing-set .schedule td .ext{ color:var(--ds-blue); }
+.drawing-set .sheet-links{ display:flex; flex-wrap:wrap; gap:6px 18px; }
+.drawing-set .sheet-links .ext{ white-space:nowrap; }
+.drawing-set .sheet-links .ext:hover{ color:var(--ds-accent); }
 
 /* rev / archive / issue */
 .drawing-set .revtable{ width:100%; border-collapse:collapse; font-family:var(--ds-mono); font-size:12px; }

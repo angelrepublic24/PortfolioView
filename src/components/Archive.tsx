@@ -1,3 +1,4 @@
+import { linksFor } from "@/lib/stack";
 import { IProject } from "@/types";
 import Link from "next/link";
 
@@ -60,6 +61,9 @@ export const Archive = ({projects}: ArchiveProps) => {
               </thead>
               <tbody>
                 {projects?.map((project) => {
+                  // A project in development can have no destination at all — render it as plain text.
+                  const links = linksFor(project);
+                  const primary = links[0];
                   return (
                     <tr key={project._id} className="border-b border-slate-300/10 last:border-none">
                       <td className="py-4 pr-4 align-top text-sm">
@@ -70,12 +74,17 @@ export const Archive = ({projects}: ArchiveProps) => {
                       <td className="py-4 pr-4 align-top font-semibold leading-snug text-slate-200">
                         <div>
                           <div className="block sm:hidden">
+                            {!primary ? (
+                              <span className="inline-flex items-baseline font-medium leading-tight text-slate-200 text-base">
+                                {project.name}
+                              </span>
+                            ) : (
                             <Link
                               className="inline-flex items-baseline font-medium leading-tight text-slate-200 hover:text-teal-300 focus-visible:text-teal-300 hover:text-slate-200 focus-visible:text-teal-300 sm:hidden group/link text-base"
-                              href={project.url}
+                              href={primary.url}
                               target="_blank"
                               rel="noreferrer noopener"
-                              aria-label="Emerson Collective (opens in a new tab)"
+                              aria-label={`${project.name} (opens in a new tab)`}
                             >
                               <span>
                                 <span className="inline-block">
@@ -96,6 +105,7 @@ export const Archive = ({projects}: ArchiveProps) => {
                                 </span>
                               </span>
                             </Link>
+                            )}
                           </div>
                           <div className="hidden sm:block">
                             {project.name}
@@ -122,14 +132,18 @@ export const Archive = ({projects}: ArchiveProps) => {
                       </td>
                       <td className="hidden py-4 align-top sm:table-cell">
                         <ul className="translate-y-1">
-                          <li className="mb-1 flex items-center">
+                          {links.length === 0 && (
+                            <li className="mb-1 flex items-center text-sm text-slate-500">—</li>
+                          )}
+                          {links.map((link) => (
+                          <li className="mb-1 flex items-center" key={link.url}>
                             <Link
                               className="inline-flex items-baseline font-medium leading-tight text-slate-200 hover:text-teal-300 focus-visible:text-teal-300 text-sm text-slate-400 hover:text-slate-200 focus-visible:text-teal-300 group/link text-sm"
-                              href={project.url}
+                              href={link.url}
                               target="_blank"
                               rel="noreferrer noopener"
-                              aria-label="emersoncollective.com (opens in a new tab)"
-                            >{project.url}
+                              aria-label={`${link.label} (opens in a new tab)`}
+                            >{link.label}
                               <span>
                                 {" "}
                                 <span className="inline-block">
@@ -151,6 +165,7 @@ export const Archive = ({projects}: ArchiveProps) => {
                               </span>
                             </Link>
                           </li>
+                          ))}
                         </ul>
                       </td>
                     </tr>

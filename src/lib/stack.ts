@@ -1,4 +1,4 @@
-import type { IProject, Discipline, ProjectStatus } from "@/types";
+import type { IProject, Discipline, ProjectStatus, ProjectLink } from "@/types";
 
 /**
  * Presentation logic for the "Drawing Set" design.
@@ -132,4 +132,31 @@ export function summaryFor(project: IProject, max = 240): string {
 
 export function yearLabel(date: number): string {
   return String(date);
+}
+
+/**
+ * Every destination a project ships on, deduped by URL.
+ * `links` (website + app stores…) wins; `url` is kept as the primary/fallback entry
+ * so projects that only ever had one link keep rendering exactly as before.
+ */
+export function linksFor(project: IProject): ProjectLink[] {
+  const out: ProjectLink[] = [];
+  const seen = new Set<string>();
+  // Tolerant of anything the API can return — a malformed subdocument must not
+  // take down a page that renders every project.
+  const push = (label?: string | null, url?: string | null) => {
+    const href = (url ?? "").trim();
+    if (!href) return;
+    const key = href.replace(/\/+$/, "").toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ label: (label ?? "").trim() || "Visit", url: href });
+  };
+
+  const extra = project.links ?? [];
+  // The primary url leads; a links entry pointing at the same href won't duplicate it.
+  push(extra.length ? "Website" : "Visit", project.url);
+  for (const l of extra) push(l?.label, l?.url);
+
+  return out;
 }
