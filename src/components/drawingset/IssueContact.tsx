@@ -14,6 +14,7 @@ export default function IssueContact({ content }: { content: SiteContentType }) 
             <a href={c.github} target="_blank" rel="noopener noreferrer"><span className="k">GitHub</span><span>{c.githubLabel}</span></a>
             <a href={c.linkedin} target="_blank" rel="noopener noreferrer"><span className="k">LinkedIn</span><span>{c.linkedinLabel}</span></a>
             <a href={`mailto:${c.email}`}><span className="k">Email</span><span>{c.email}</span></a>
+            <a href="/Resume.pdf" target="_blank" rel="noopener noreferrer"><span className="k">Resume</span><span>View PDF ↗</span></a>
             <a href={c.studio} target="_blank" rel="noopener noreferrer"><span className="k">Studio</span><span>{c.studioLabel}</span></a>
             <div className="r"><span className="k">Location</span><span>{content.location}</span></div>
           </div>

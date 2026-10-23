@@ -1,5 +1,5 @@
 import { getSiteData } from "@/lib/data";
-import { summaryFor } from "@/lib/stack";
+import { homeAnchorFor, sheetNoFor, summaryFor } from "@/lib/stack";
 import DrawingFrame from "@/components/drawingset/DrawingFrame";
 import SheetNav from "@/components/drawingset/SheetNav";
 import TitleBlock from "@/components/drawingset/TitleBlock";
@@ -47,8 +47,8 @@ export default async function Home() {
           <ProjectSheet
             key={p._id}
             project={p}
-            sheetNo={`A-${String(i + 1).padStart(2, "0")}`}
-            anchorId={i === 0 ? "work" : undefined}
+            sheetNo={sheetNoFor(i)}
+            anchorId={homeAnchorFor(p, sheetNoFor(i))}
           />
         ))}
         <RevHistory experience={experience} />

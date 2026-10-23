@@ -1,5 +1,6 @@
 import type { IProject, IExperience, Discipline } from "@/types";
 import { site, type SiteContentType } from "@/components/drawingset/siteContent";
+import { projectSlug, sheetNoFor } from "@/lib/stack";
 
 /**
  * Server-side data access for the public site.
@@ -66,6 +67,45 @@ export function splitProjects(projects: IProject[]): { featured: IProject[]; arc
   const featuredIds = new Set(featured.map((p) => p._id));
   const archive = projects.filter((p) => !featuredIds.has(p._id));
   return { featured, archive };
+}
+
+export type SheetRef = { project: IProject; sheetNo: string };
+
+export type ProjectSheetData = SheetRef & {
+  prev: SheetRef | null;
+  next: SheetRef | null;
+};
+
+/**
+ * One project for its /project/[slug] page, with its sheet number and neighbours in
+ * home order. Hidden projects aren't served by the API, so they resolve to null.
+ * Also accepts a Mongo id so the old /project/<id> links can redirect.
+ */
+export async function getProjectSheet(slugOrId: string): Promise<ProjectSheetData | null> {
+  let key = slugOrId;
+  try {
+    key = decodeURIComponent(slugOrId);
+  } catch {
+    // a stray "%" — match it as typed
+  }
+  key = key.toLowerCase();
+  const projects = await getProjects();
+  const project =
+    projects.find((p) => projectSlug(p) === key) ??
+    projects.find((p) => p._id === key) ??
+    null;
+  if (!project) return null;
+
+  const { featured } = splitProjects(projects);
+  const i = featured.findIndex((p) => p._id === project._id);
+  const ref = (j: number): SheetRef | null =>
+    i >= 0 && j >= 0 && j < featured.length ? { project: featured[j], sheetNo: sheetNoFor(j) } : null;
+  return {
+    project,
+    sheetNo: i >= 0 ? sheetNoFor(i) : "REF",
+    prev: ref(i - 1),
+    next: ref(i + 1),
+  };
 }
 
 /** Merge a DB SiteContent document over the default copy (deep, field-safe). */

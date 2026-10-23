@@ -160,3 +160,28 @@ export function linksFor(project: IProject): ProjectLink[] {
 
   return out;
 }
+
+/** URL-safe id from the project name — shared by the home anchor and the /project/[slug] page. */
+export function projectSlug(project: Pick<IProject, "name">): string {
+  return project.name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function projectHref(project: Pick<IProject, "name">): string {
+  return `/project/${projectSlug(project)}`;
+}
+
+/** Featured sheets are numbered A-01, A-02… in home order. */
+export function sheetNoFor(index: number): string {
+  return `A-${String(index + 1).padStart(2, "0")}`;
+}
+
+/** Where a project sits on the home: the first featured sheet doubles as the nav's #work anchor. */
+export function homeAnchorFor(project: Pick<IProject, "name">, sheetNo: string): string {
+  if (sheetNo === "REF") return "ref";
+  return sheetNo === sheetNoFor(0) ? "work" : projectSlug(project);
+}

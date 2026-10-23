@@ -8,6 +8,13 @@ export type ProjectLink = {
     url: string;
 }
 
+/** A photo on the project's detail sheet. */
+export type ProjectImage = {
+    url: string;
+    caption?: string;
+    publicId?: string;
+}
+
 export type IProject = {
     _id: string;
     name: string;
@@ -25,10 +32,12 @@ export type IProject = {
     kind?: ProjectKind;
     client?: string;
     role?: string;
-    status?: ProjectStatus;
+    /** null = cleared in the admin; the status is then derived from the description. */
+    status?: ProjectStatus | null;
     disciplines?: Discipline[];
     featured?: boolean;
     links?: ProjectLink[];
+    gallery?: ProjectImage[];
 }
 
 export type ProductForm = Omit<IProject, '_id'>

@@ -47,12 +47,13 @@ export default function DrawingSetEffects() {
 
     // --- nav active state (click + scroll-spy) ---
     const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".sheetnav nav a"));
-    const setActiveNav = (href: string | null) => {
-      if (!href) return;
-      navLinks.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === href));
+    // Compare by hash: on a project page the links are "/#work", not "#work".
+    const setActiveNav = (hash: string | null) => {
+      if (!hash) return;
+      navLinks.forEach((a) => a.classList.toggle("on", a.hash === hash));
     };
     const navClickHandlers = navLinks.map((a) => {
-      const handler = () => setActiveNav(a.getAttribute("href"));
+      const handler = () => setActiveNav(a.hash);
       a.addEventListener("click", handler);
       return { a, handler };
     });

@@ -49,3 +49,55 @@ export function renderOG() {
     { ...ogSize }
   );
 }
+
+// Same card, for one project's sheet (/project/[slug]).
+export function renderProjectOG({
+  sheetNo,
+  name,
+  status,
+  summary,
+}: {
+  sheetNo: string;
+  name: string;
+  status: string;
+  summary: string;
+}) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "#14171B",
+          color: "#E6E7E1",
+          fontFamily: "monospace",
+          padding: 68,
+          position: "relative",
+        }}
+      >
+        <div style={{ position: "absolute", top: 24, left: 24, right: 24, bottom: 24, border: "1px solid #333A42", display: "flex" }} />
+
+        <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "center" }}>
+          <div style={{ display: "flex", fontSize: 20, letterSpacing: 6, color: "#8B919A" }}>
+            {`A. ALMONTE · SHEET ${sheetNo} — PROJECT`}
+          </div>
+          <div style={{ display: "flex", fontSize: 96, fontWeight: 700, marginTop: 18, lineHeight: 1 }}>{name}</div>
+          <div style={{ display: "flex", fontSize: 28, color: "#F2A63C", marginTop: 18, letterSpacing: 3 }}>
+            {status.toUpperCase()}
+          </div>
+          <div style={{ display: "flex", fontSize: 26, color: "#8B919A", marginTop: 26, lineHeight: 1.35, maxWidth: 1000 }}>
+            {summary}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", fontSize: 18, letterSpacing: 3, color: "#8B919A" }}>ANGEL ALMONTE · FULL-STACK</div>
+          <div style={{ display: "flex", fontSize: 18, letterSpacing: 3, color: "#8B919A" }}>ALMONTEPORTFOLIO.COM</div>
+        </div>
+      </div>
+    ),
+    { ...ogSize }
+  );
+}
